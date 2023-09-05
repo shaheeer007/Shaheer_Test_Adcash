@@ -8,10 +8,12 @@ $conn = connectToDatabase(); // Get the database connection
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Handle GET requests to retrieve a list of client records
     try {
+       
         $stmt = $conn->query("SELECT * FROM clients");
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($results);
     } catch (PDOException $e) {
+         http_response_code(500);
         echo json_encode(["error" => "Error retrieving client records: " . $e->getMessage()]);
     }
 } else if($_SERVER['REQUEST_METHOD'] === 'POST'){

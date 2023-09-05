@@ -18,13 +18,14 @@ function LandingPagePresenter({
 }) {
   const [userModal, setUserModal] = useState(false);
   const [purchaseModal, setPurchaseModal] = useState(false);
+  console.log('--->>',allStocks)
   return (
     <>
       <Grid container>
         <Grid item xs={12}>
           <Box className="lp_heading">
             <Box>
-              <Typography>Logo</Typography>
+              <Typography className="left_side_heading">Logo</Typography>
             </Box>
             <Box>
               <Typography className="active_user">
@@ -47,27 +48,28 @@ function LandingPagePresenter({
             <Box className="info_boxes_wrapper">
               <Box className="info_box">
                 <Typography>Current Balance</Typography>
-                <Typography>€ {walletInfoData?.current_amount}</Typography>
+                <Typography className="box_data_val">
+                  € {walletInfoData?.current_amount}
+                </Typography>
               </Box>
               <Box className="info_box">
                 <Typography>Total Profit/Loss</Typography>
-                <Typography
-                  style={
-                    Number(walletInfoData?.total_loss_or_gain) < 0
-                      ? {
-                          color: "red",
-                        }
-                      : Number(walletInfoData?.total_loss_or_gain) == 0
-                      ? { color: "black" }
-                      : { color: "green" }
-                  }
-                >
-                  € {walletInfoData?.total_loss_or_gain}
+                <Typography className="box_data_val">
+                  {Number(walletInfoData?.total_loss_or_gain) == 0
+                    ? " "
+                    : Number(walletInfoData?.total_loss_or_gain) > 0
+                    ? "+ "
+                    : Number(walletInfoData?.total_loss_or_gain) < 0
+                    ? "- "
+                    : ""}
+                  € {Math.abs(walletInfoData?.total_loss_or_gain)}
                 </Typography>
               </Box>
               <Box className="info_box">
                 <Typography>Total Portfolio Value</Typography>
-                <Typography>€ {walletInfoData?.portfolio_price}</Typography>
+                <Typography className="box_data_val">
+                  {Number(walletInfoData?.portfolio_price)}
+                </Typography>
               </Box>
             </Box>
             <Box className="secnd_header">

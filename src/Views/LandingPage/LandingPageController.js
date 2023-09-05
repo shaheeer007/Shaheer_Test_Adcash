@@ -28,7 +28,12 @@ function LandingPageController() {
     axios
       .get("http://localhost/shaheer_test/my_backend/api/getAllStocks")
       .then((res) => {
-        setAllStocks(res?.data);
+        if(res && res?.data?.length > 0){
+          setAllStocks(res?.data);
+        } else {
+          setAllStocks([]);
+        }
+     
       })
       .catch((err) => {
         console.log(err);
@@ -36,6 +41,8 @@ function LandingPageController() {
     axios
       .get("http://localhost/shaheer_test/my_backend/api/getAllClients")
       .then((res) => {
+        console.log('resss h',res)
+       if(res && res?.data) {
         const active_user = res?.data?.filter((data) => {
           return data?.is_active == 1;
         });
@@ -93,7 +100,8 @@ function LandingPageController() {
           if (in_active_users?.length > 0) {
             setAllClients(in_active_users);
           }
-        }
+        } 
+       }
       })
       .catch((err) => {
         console.log(err);
@@ -156,30 +164,6 @@ function LandingPageController() {
       });
   };
 
-  const columns = [
-    { field: "stock", headerName: "Stock", width: 200 },
-    {
-      field: "volume",
-      headerName: "Volume",
-    },
-    {
-      field: "purchasePrice",
-      headerName: "Purchase Price",
-    },
-    {
-      field: "currentPrice",
-      headerName: "Current Price",
-    },
-    {
-      field: "gainLoss",
-      headerName: "Gain/Loss",
-    },
-    {
-      field: "purchaseTime",
-      headerName: "Purchase Time",
-    },
-  ];
-
   const handlePurchaseStock = (data) => {
     const payload = {
       user_id: activeUser?.id,
@@ -202,6 +186,69 @@ function LandingPageController() {
         console.log(err);
       });
   };
+
+  const columns = [
+    { field: "stock", headerName: "Stock", width: 200 },
+    {
+      field: "volume",
+      headerName: "Volume",
+      renderCell: (params) => {
+        return <div style={{ fontWeight: "bold" }}>{params?.row?.volume}</div>;
+      },
+    },
+    {
+      field: "purchasePrice",
+      headerName: "Purchase Price",
+      renderCell: (params) => {
+        return (
+          <div style={{ fontWeight: "bold" }}>{params?.row?.purchasePrice}</div>
+        );
+      },
+    },
+    {
+      field: "currentPrice",
+      headerName: "Current Price",
+      renderCell: (params) => {
+        return (
+          <div style={{ fontWeight: "bold" }}>{params?.row?.currentPrice}</div>
+        );
+      },
+    },
+    {
+      field: "gainLoss",
+      headerName: "Gain/Loss",
+      renderCell: (params) => {
+        const gainLossValue = Number(params?.row?.gainLoss);
+        const symbol =
+          params?.row?.is_loss == 1
+            ? "-"
+            : params?.row?.is_loss != 1 && params?.row?.is_gain != 1
+            ? ""
+            : "+";
+        // Define custom styles based on gain/loss
+        const cellStyle = {
+          color:
+            params?.row?.is_loss == 1
+              ? "red"
+              : params?.row?.is_loss != 1 && params?.row?.is_gain != 1
+              ? "inherit"
+              : "green",
+          fontWeight: "bold",
+        };
+
+        return (
+          <div style={cellStyle}>{`${symbol} € ${Math.abs(
+            Number(gainLossValue)
+          )}`}</div>
+        );
+      },
+    },
+    {
+      field: "purchaseTime",
+      headerName: "Purchase Time",
+    },
+  ];
+
   const rows =
     transactionsRecord && transactionsRecord?.length > 0
       ? transactionsRecord.map((data) => {
@@ -211,13 +258,13 @@ function LandingPageController() {
             volume: data?.volume,
             purchasePrice: `€ ${data?.purchase_price}`,
             currentPrice: `€ ${data?.stock_current_price}`,
-            gainLoss:
-              data?.is_gain == 1
-                ? `€ ${data?.gain_loss}`
-                : data?.is_loss == 1
-                ? `- € ${Math.abs(Number(data?.gain_loss))}`
-                : "--",
-            purchaseTime: moment(data?.purchase_time).format("DD MMM, YYYY"),
+            gainLoss: Number(data?.gain_loss),
+
+            is_gain: data?.is_gain,
+            is_loss: data?.is_loss,
+            purchaseTime: moment(data?.purchase_time).format(
+              "DD.MM.YYYY HH:MM"
+            ),
           };
         })
       : [];
